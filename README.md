@@ -242,3 +242,132 @@ Remove containers and network:
 docker rm nodebackend sql
 docker network rm backend
 ```
+# Node.js Backend with MySQL (Docker compose)
+
+## Docker Compose File Structure
+
+A Docker Compose file is a YAML file (usually named `docker-compose.yml` or `docker-compose.yaml`) that defines how multiple Docker containers (services) work together. It describes your application’s services, networks, and volumes.
+
+### Key Sections
+
+### 1. `version`
+
+Specifies the version of the Compose file format. Commonly used versions are `'3'` or `'3.8'`.
+
+```yaml
+version: '3.8'
+```
+
+
+### 2. `services`
+
+Defines each container you want to run as part of your application.
+
+Each service can have:
+
+- `image`: Use an existing Docker image
+- `build`: Directory or context where your Dockerfile lives (for building images)
+- `ports`: List of port mappings, `"hostPort:containerPort"`
+- `environment`: Environment variables passed to the container
+- `volumes`: Storage volumes or bind mounts
+- `networks`: Networks the container connects to
+- `command`: Override the default command
+
+Example:
+
+```yaml
+services:
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/app
+    networks:
+      - backendnet
+```
+
+
+### 3. `volumes`
+
+Defines named volumes for persistent data that outlives containers.
+
+```yaml
+volumes:
+  mysql-data:
+```
+
+
+### 4. `networks`
+
+Defines custom Docker networks for better isolation and communication between services.
+
+```yaml
+networks:
+  backendnet:
+    driver: bridge
+```
+
+
+***
+
+## Example Compose File Structure
+
+```yaml
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: test_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - backendnet
+
+  backend:
+    build: .
+    environment:
+      DATABASE_URL: mysql://root:example@mysql:3306/test_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - backendnet
+
+volumes:
+  mysql-data:
+
+networks:
+  backendnet:
+```
+
+
+***
+
+### Summary of Typical Compose File Structure:
+
+- `version`: file format version
+- `services`: list of containers with their configs
+- `volumes`: persistent storage
+- `networks`: container communication setup
+
+This structure allows you to orchestrate multi-container applications easily, controlling network, storage, and deployment details in a single file.
+
+### To run the docker compose use this 
+```bash
+docker compose up -d
+```
+
+### To stop the docker compose use this 
+```bash
+docker compose down 
+```
+
