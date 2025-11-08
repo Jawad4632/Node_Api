@@ -159,3 +159,86 @@ npm start
 - **express** - Web framework
 - **@prisma/client** - Prisma Client for database access
 - **nodemon** - Development auto-restart
+
+# Node.js Backend with MySQL (Docker Setup)
+
+This guide explains how to build and run the Node.js backend using Docker and connect it to a MySQL database container with Prisma migrations.
+
+## Prerequisites
+
+- Docker and Docker Compose installed
+- Prisma CLI available in your project (`npx prisma`)
+- A valid Dockerfile in your project root
+
+## 1. Build the Docker Image
+
+Build the Docker image from the projects Dockerfile:
+
+```bash
+docker build -t my-app .
+```
+
+## 2. Create a Docker Network
+
+Create a Docker network for communication between containers:
+
+```bash
+docker network create backend
+```
+
+## 3. Run the MySQL Container
+
+Start a MySQL container with environment variables for root password and database name:
+
+```bash
+docker run --name sql --network backend -d   -p 3306:3306   -e MYSQL_ROOT_PASSWORD=jawad   -e MYSQL_DATABASE=test_db   mysql
+```
+
+## 4. Run the Node.js Application
+
+Start your backend container and connect it to the same network:
+
+```bash
+docker run --name nodebackend -d   --network backend   -p 3000:3000   -e DATABASE_URL="mysql://root:jawad@sql:3306/test_db"   my-app
+```
+
+## 5. Run Prisma Migrations
+
+Access the Node.js container shell:
+
+```bash
+docker exec -it nodebackend sh
+```
+
+Then run Prisma migration command to initialize your database schema:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+Exit the container after the migration completes:
+
+```bash
+exit
+```
+
+## 6. Access the Application
+
+Once both containers are running:
+- Backend is available at: `http://localhost:3000`
+- MySQL is accessible on port: `3306`
+
+## 7. Optional Commands
+
+Stop containers:
+
+```bash
+docker stop nodebackend sql
+```
+
+Remove containers and network:
+
+```bash
+docker rm nodebackend sql
+docker network rm backend
+```

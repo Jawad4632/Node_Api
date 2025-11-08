@@ -1,0 +1,28 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Environment files
+.env
+
+# Prisma artifacts
+prisma/dev.db
+prisma/generated/
+
+# Logs
+*.log
+logs
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+
+
+node_modules
+npm-debug.log
+.git
